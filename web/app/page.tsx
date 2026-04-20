@@ -3,6 +3,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
 import { useUiStore } from '@/lib/store';
 
 interface CourseDto {
@@ -36,6 +46,27 @@ export default function HomePage() {
         </Button>
       </header>
 
+      {/* shadcn/ui component showcase – confirms all base components mount */}
+      <section className="mb-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>Get started</CardTitle>
+            <CardDescription>
+              Search for a course or browse the catalogue below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid w-full max-w-sm gap-1.5">
+              <Label htmlFor="search">Search courses</Label>
+              <Input id="search" type="text" placeholder="e.g. Machine Learning" />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Search</Button>
+          </CardFooter>
+        </Card>
+      </section>
+
       <section>
         <h2 className="text-2xl font-semibold mb-4">Featured courses</h2>
         {isLoading && <p className="text-muted-foreground">Loading…</p>}
@@ -45,14 +76,17 @@ export default function HomePage() {
         {data && (
           <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.data.map((c) => (
-              <li
-                key={c.id}
-                className="rounded-lg border p-6 hover:shadow-md transition-shadow"
-              >
-                <h3 className="font-semibold text-lg">{c.title}</h3>
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
-                  {c.description}
-                </p>
+              <li key={c.id}>
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{c.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {c.description}
+                    </p>
+                  </CardContent>
+                </Card>
               </li>
             ))}
             {data.data.length === 0 && (
