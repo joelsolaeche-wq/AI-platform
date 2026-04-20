@@ -13,10 +13,8 @@ build/
 out/
 *.tsbuildinfo
 
-# Env
-.env
-.env.local
-.env.*.local
+# Env — ignore all .env variants except .env.example
+.env*
 !.env.example
 
 # Logs
