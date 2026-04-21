@@ -14,15 +14,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { useUiStore } from '@/lib/store';
-
-interface CourseDto {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  published: boolean;
-  createdAt: string;
-}
+import type { CourseDto } from '@/types';
 
 export default function HomePage() {
   const { data, isLoading, error } = useQuery({
