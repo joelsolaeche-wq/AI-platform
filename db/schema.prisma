@@ -20,27 +20,27 @@ model User {
 }
 
 model Course {
-  id          String    @id @default(cuid())
-  slug        String    @unique
+  id          String       @id @default(cuid())
+  slug        String       @unique
   title       String
   description String
-  published   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  published   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
   lessons     Lesson[]
   enrollments Enrollment[]
 }
 
 model Lesson {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   courseId      String
-  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title         String
   content       String
   orderIndex    Int
   muxAssetId    String?
   muxPlaybackId String?
   durationSec   Int?
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime @default(now())
 
   @@unique([courseId, orderIndex])
 }
@@ -60,8 +60,8 @@ model Enrollment {
 /// Semantic embeddings for lessons (pgvector).
 /// `embedding` is Unsupported because Prisma handles vector types via raw SQL.
 model LessonEmbedding {
-  id        String                 @id @default(cuid())
-  lessonId  String                 @unique
+  id        String                    @id @default(cuid())
+  lessonId  String                    @unique
   embedding Unsupported("vector(1024)")
-  createdAt DateTime               @default(now())
+  createdAt DateTime                  @default(now())
 }
