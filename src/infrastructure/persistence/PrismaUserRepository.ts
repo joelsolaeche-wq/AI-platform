@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { User } from '../../domain/entities/User';
+import { PrismaClient, Role as PrismaRole } from '@prisma/client';
+import { User, UserRole } from '../../domain/entities/User';
 import { EmailAddress } from '../../domain/value-objects/EmailAddress';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 
@@ -28,21 +28,28 @@ export class PrismaUserRepository implements IUserRepository {
         id: user.id,
         email: user.email.value,
         name: user.name,
+        role: this.toPrismaRole(user.role),
         workosId: user.workosId,
         createdAt: user.createdAt,
       },
       update: {
         email: user.email.value,
         name: user.name,
+        role: this.toPrismaRole(user.role),
         workosId: user.workosId,
       },
     });
+  }
+
+  private toPrismaRole(role: UserRole): PrismaRole {
+    return role as PrismaRole;
   }
 
   private toDomain(row: {
     id: string;
     email: string;
     name: string;
+    role: PrismaRole;
     workosId: string | null;
     createdAt: Date;
   }): User {
@@ -50,6 +57,7 @@ export class PrismaUserRepository implements IUserRepository {
       id: row.id,
       email: new EmailAddress(row.email),
       name: row.name,
+      role: row.role as UserRole,
       workosId: row.workosId,
       createdAt: row.createdAt,
     });
