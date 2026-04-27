@@ -7,14 +7,20 @@
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "prisma:generate": "prisma generate --schema=../db/schema.prisma"
+  },
+  "prisma": {
+    "schema": "../db/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.0",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.1.0",
     "@sentry/nextjs": "^8.30.0",
     "@tanstack/react-query": "^5.56.0",
     "@tanstack/react-query-devtools": "^5.56.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.441.0",
@@ -28,8 +34,9 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.39",
-    "@types/react": "^18.3.28",
+    "@types/react": "18.3.28",
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.5.0",
     "eslint": "^8.57.1",
