@@ -68,8 +68,8 @@ model Enrollment {
 /// Semantic embeddings for lessons (pgvector).
 /// `embedding` is Unsupported because Prisma handles vector types via raw SQL.
 model LessonEmbedding {
-  id        String                    @id @default(cuid())
-  lessonId  String                    @unique
+  id        String                      @id @default(cuid())
+  lessonId  String                      @unique
   embedding Unsupported("vector(1024)")
-  createdAt DateTime                  @default(now())
+  createdAt DateTime                    @default(now())
 }
