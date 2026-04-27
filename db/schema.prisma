@@ -11,19 +11,20 @@ datasource db {
 }
 
 enum Role {
-  STUDENT
-  ADMIN
+  student
+  instructor
+  admin
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  name         String
-  passwordHash String?
-  role         Role         @default(STUDENT)
-  workosId     String?      @unique
-  createdAt    DateTime     @default(now())
-  enrollments  Enrollment[]
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String
+  role        Role         @default(student)
+  workosId    String?      @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
 }
 
 model Course {
