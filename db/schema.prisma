@@ -11,12 +11,20 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  workosId    String?      @unique
-  createdAt   DateTime     @default(now())
-  enrollments Enrollment[]
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  role         Role         @default(STUDENT)
+  passwordHash String?
+  workosId     String?      @unique
+  createdAt    DateTime     @default(now())
+  enrollments  Enrollment[]
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
 }
 
 model Course {
