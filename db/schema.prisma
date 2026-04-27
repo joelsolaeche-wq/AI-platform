@@ -10,13 +10,20 @@ datasource db {
   extensions = [pgvector(map: "vector")]
 }
 
+enum Role {
+  STUDENT
+  ADMIN
+}
+
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  workosId    String?      @unique
-  createdAt   DateTime     @default(now())
-  enrollments Enrollment[]
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String?
+  role         Role         @default(STUDENT)
+  workosId     String?      @unique
+  createdAt    DateTime     @default(now())
+  enrollments  Enrollment[]
 }
 
 model Course {
