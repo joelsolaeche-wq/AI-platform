@@ -17,14 +17,14 @@ enum Role {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  role        Role         @default(student)
-  workosId    String?      @unique
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  enrollments Enrollment[]
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String?
+  role         String       @default("student")
+  workosId     String?      @unique
+  createdAt    DateTime     @default(now())
+  enrollments  Enrollment[]
 }
 
 model Course {
