@@ -7,18 +7,25 @@
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "prisma:generate": "prisma generate --schema=../db/schema.prisma"
+  },
+  "prisma": {
+    "schema": "../db/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^5.19.0",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.1.0",
     "@sentry/nextjs": "^8.30.0",
     "@tanstack/react-query": "^5.56.0",
     "@tanstack/react-query-devtools": "^5.56.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.441.0",
     "next": "14.2.5",
+    "next-auth": "^5.0.0-beta.31",
     "posthog-js": "^1.165.0",
     "pusher-js": "^8.4.0-rc2",
     "react": "18.3.1",
@@ -27,6 +34,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.39",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
@@ -34,6 +42,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.5",
     "postcss": "^8.5.10",
+    "prisma": "^5.19.0",
     "tailwindcss": "^3.4.19",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.9.3"
