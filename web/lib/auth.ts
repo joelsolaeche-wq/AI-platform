@@ -1,61 +1,69 @@
-/**
- * Server-side auth helper.
- *
- * `auth()` reads the session cookie set by the API after a successful
- * WorkOS authentication and returns the decoded session, or `null` when
- * the user is unauthenticated.
- *
- * This module is **server-only** — it relies on Next.js `cookies()` which
- * is not available in Client Components.
- */
-import { cookies } from 'next/headers';
-
-export type UserRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
-
-export interface SessionUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-}
-
-export interface Session {
-  user: SessionUser;
-}
-
-const SESSION_COOKIE = 'session';
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 
 /**
- * Returns the current session from the session cookie, or `null` if the
- * user is not authenticated / the cookie is absent or malformed.
+ * Auth.js (NextAuth v5) configuration.
+ *
+ * Uses Credentials provider as a thin adapter so the real authentication
+ * logic remains in the NestJS API layer (Clean Architecture boundary).
+ * The `auth()` helper is exported for use in Server Components / Actions.
  */
-export async function auth(): Promise<Session | null> {
-  const cookieStore = cookies();
-  const raw = cookieStore.get(SESSION_COOKIE)?.value;
+export const { auth, signIn, signOut, handlers } = NextAuth({
+  providers: [
+    Credentials({
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
 
-  if (!raw) return null;
+        try {
+          const res = await fetch(
+            `${process.env.NEXTAUTH_API_URL ?? 'http://localhost:3000'}/api/auth/login`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+            },
+          );
 
-  try {
-    const decoded = JSON.parse(Buffer.from(raw, 'base64').toString('utf-8'));
+          if (!res.ok) return null;
 
-    if (
-      typeof decoded?.id === 'string' &&
-      typeof decoded?.name === 'string' &&
-      typeof decoded?.email === 'string' &&
-      typeof decoded?.role === 'string'
-    ) {
-      return {
-        user: {
-          id: decoded.id,
-          name: decoded.name,
-          email: decoded.email,
-          role: decoded.role as UserRole,
-        },
-      };
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
+          const user = (await res.json()) as {
+            id: string;
+            name: string;
+            email: string;
+          };
+          return user;
+        } catch {
+          return null;
+        }
+      },
+    }),
+  ],
+  pages: {
+    signIn: '/login',
+  },
+  session: { strategy: 'jwt' },
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user) {
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+      }
+      return session;
+    },
+  },
+});
