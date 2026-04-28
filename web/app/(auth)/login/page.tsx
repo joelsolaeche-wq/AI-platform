@@ -1,11 +1,14 @@
-'use client';
+/**
+ * Login page — task 2.4.
+ *
+ * Submits credentials to the Auth.js Credentials provider via a Server Action
+ * and redirects to /dashboard on success.  On failure the user is sent back to
+ * this page with `?error=CredentialsSignin` in the URL.
+ */
 
-import { useState, useTransition } from 'react';
-import Link from 'next/link';
-import { signIn } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { redirect } from 'next/navigation';
+import { AuthError } from 'next-auth';
+import { signIn } from '@/lib/auth';
 import {
   Card,
   CardHeader,
@@ -14,111 +17,91 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-const FRIENDLY_ERRORS: Record<string, string> = {
-  CredentialsSignin: 'Invalid email or password. Please try again.',
-  invalid_credentials: 'Invalid email or password. Please try again.',
-  Default: 'Something went wrong. Please try again.',
-};
-
-function getErrorMessage(error: string | null): string | null {
-  if (!error) return null;
-  return FRIENDLY_ERRORS[error] ?? FRIENDLY_ERRORS.Default;
+interface LoginPageProps {
+  searchParams: { error?: string; callbackUrl?: string };
 }
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorCode, setErrorCode] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const errorMessage =
+    searchParams.error === 'CredentialsSignin'
+      ? 'Invalid email or password.'
+      : searchParams.error
+        ? 'Something went wrong. Please try again.'
+        : null;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setErrorCode(null);
+  const callbackUrl = searchParams.callbackUrl ?? '/dashboard';
 
-    startTransition(async () => {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
+  async function loginAction(formData: FormData) {
+    'use server';
+    try {
+      await signIn('credentials', {
+        email: formData.get('email'),
+        password: formData.get('password'),
+        redirectTo: callbackUrl,
       });
-
-      if (result?.error) {
-        setErrorCode(result.error);
-      } else {
-        // Successful login — redirect to dashboard
-        window.location.href = '/dashboard';
+    } catch (error) {
+      if (error instanceof AuthError) {
+        redirect(`/login?error=${error.type}`);
       }
-    });
+      // Re-throw redirect responses so Next.js handles them correctly.
+      throw error;
+    }
   }
 
-  const errorMessage = getErrorMessage(errorCode);
-
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Sign in</CardTitle>
-        <CardDescription>
-          Enter your email and password to access your account.
-        </CardDescription>
-      </CardHeader>
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Sign in</CardTitle>
+          <CardDescription>
+            Enter your credentials to access the platform.
+          </CardDescription>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <CardContent className="space-y-4">
-          {errorMessage && (
-            <div
-              role="alert"
-              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              {errorMessage}
+        <form action={loginAction}>
+          <CardContent className="grid gap-4">
+            {errorMessage && (
+              <p role="alert" className="text-sm text-red-600">
+                {errorMessage}
+              </p>
+            )}
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="you@example.com"
+              />
             </div>
-          )}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isPending}
-            />
-          </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                placeholder="••••••••"
+              />
+            </div>
+          </CardContent>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isPending}
-            />
-          </div>
-        </CardContent>
-
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? 'Signing in…' : 'Sign in'}
-          </Button>
-
-          <p className="text-sm text-muted-foreground text-center">
-            Don&apos;t have an account?{' '}
-            <Link
-              href="/signup"
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              Sign up
-            </Link>
-          </p>
-        </CardFooter>
-      </form>
-    </Card>
+          <CardFooter>
+            <Button type="submit" className="w-full">
+              Sign in
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </main>
   );
 }
