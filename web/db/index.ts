@@ -1,5 +1,17 @@
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
 /**
- * Database client re-exports for the web layer.
- * Placeholder — will be populated when server-side data access is added.
+ * Singleton Prisma client for the Next.js web layer.
+ * Re-uses the same instance across hot-reloads in development.
  */
-export {};
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
