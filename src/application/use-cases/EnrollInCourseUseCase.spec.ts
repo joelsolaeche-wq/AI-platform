@@ -15,6 +15,7 @@ describe('EnrollInCourseUseCase', () => {
       id: 'u1',
       email: new EmailAddress('learner@example.com'),
       name: 'Learner',
+      role: 'student',
       workosId: null,
       createdAt: new Date(),
     });
